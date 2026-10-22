@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios'
 
 // Base URL is read from Vite env at build time. Falls back to local dev backend.
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api'
+const baseURL = import.meta.env.VITE_API_BASE_URL || '/api'
 
 export const ACCESS_TOKEN_KEY = 'careerpilot_access_token'
 

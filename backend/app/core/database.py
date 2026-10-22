@@ -23,7 +23,7 @@ from app.models.skill import StudentSkill  # noqa: F401
 from app.models.project import StudentProject  # noqa: F401
 from app.models.certification import Certification  # noqa: F401
 from app.models.target_role import TargetRole  # noqa: F401
-
+from app.models.study_task import StudyTask  # noqa: F401
 # `pool_pre_ping` keeps the pool healthy against dropped connections, which
 # matters for managed/serverless Postgres providers such as Neon.
 engine = create_engine(

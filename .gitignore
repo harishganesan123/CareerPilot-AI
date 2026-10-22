@@ -23,3 +23,10 @@ backend/__pycache__/
 
 # --- Logs ---
 *.log
+# Local environment files and secrets
+.env
+.env.*
+!.env.example
+
+# Local Neon configuration
+.neon

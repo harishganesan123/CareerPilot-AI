@@ -8,33 +8,19 @@ import SkillsPage from '../pages/SkillsPage'
 import ProjectsPage from '../pages/ProjectsPage'
 import CertificationsPage from '../pages/CertificationsPage'
 import CareerGoalsPage from '../pages/CareerGoalsPage'
+import AIAssistantPage from '../pages/AIAssistantPage'
+import StudyPlannerPage from '../pages/StudyPlannerPage'
+import SkillGapPage from '../pages/SkillGapPage'
 import ComingSoonPage from '../pages/ComingSoonPage'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 
 /** Modules that exist in the navigation but aren't built yet. */
 const comingSoon: { path: string; title: string; description: string; plannedFor: string }[] = [
-  {
-    path: '/ai/assistant',
-    title: 'AI Academic Assistant',
-    description: 'Ask questions from your own study materials and get grounded answers.',
-    plannedFor: 'a later phase',
-  },
-  {
-    path: '/ai/study-planner',
-    title: 'Smart Study Planner',
-    description: 'Build a personalized learning schedule around your semester and goals.',
-    plannedFor: 'a later phase',
-  },
+  
   {
     path: '/ai/resume-analyzer',
     title: 'Resume Analyzer',
     description: 'Analyze your resume and identify concrete improvements.',
-    plannedFor: 'a later phase',
-  },
-  {
-    path: '/ai/skill-gap',
-    title: 'Skill Gap Analysis',
-    description: 'Discover which skills you still need for your target role.',
     plannedFor: 'a later phase',
   },
   {
@@ -117,6 +103,32 @@ export default function AppRoutes() {
           <ProtectedRoute>
             <CareerGoalsPage />
           </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/ai/assistant"
+        element={
+          <ProtectedRoute>
+            <AIAssistantPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+         path="/ai/study-planner"
+        element={
+          <ProtectedRoute>
+            <StudyPlannerPage />
+          </ProtectedRoute>
+         }
+      />
+
+      <Route
+        path="/ai/skill-gap"
+       element={
+         <ProtectedRoute>
+            <SkillGapPage />
+        </ProtectedRoute>
         }
       />
 

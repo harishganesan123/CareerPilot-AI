@@ -21,6 +21,7 @@ from app.models.skill import StudentSkill  # noqa: F401
 from app.models.project import StudentProject  # noqa: F401
 from app.models.certification import Certification  # noqa: F401
 from app.models.target_role import TargetRole  # noqa: F401
+from app.models.study_task import StudyTask  # noqa: F401
 
 config = context.config
 config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
