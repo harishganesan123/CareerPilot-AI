@@ -14,35 +14,17 @@ import SkillGapPage from '../pages/SkillGapPage'
 import ResumeAnalyzerPage from '../pages/ResumeAnalyzerPage'
 import ComingSoonPage from '../pages/ComingSoonPage'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
+import MockInterviewPage from '../pages/MockInterviewPage';
+import CareerRecommendationsPage from '../pages/CareerRecommendationsPage'
+import PlacementReadinessPage from '../pages/PlacementReadinessPage'
+import SettingsPage from '../pages/SettingsPage'
+
 
 /** Modules that exist in the navigation but aren't built yet. */
 const comingSoon: { path: string; title: string; description: string; plannedFor: string }[] = [
   
-  {
-    path: '/ai/career-recommendations',
-    title: 'Career Recommendations',
-    description: 'Find career paths that match your profile and interests.',
-    plannedFor: 'a later phase',
-  },
-  {
-    path: '/placement/interview-prep',
-    title: 'Interview Prep',
-    description: 'Practice for interviews with structured preparation tracks.',
-    plannedFor: 'a later phase',
-  },
-  {
-    path: '/placement/readiness',
-    title: 'Placement Readiness',
-    description:
-      'A readiness indicator calculated from your profile, skills, and practice history.',
-    plannedFor: 'a later phase',
-  },
-  {
-    path: '/settings',
-    title: 'Settings',
-    description: 'Account and application preferences.',
-    plannedFor: 'a later phase',
-  },
+
+  
 ]
 
 export default function AppRoutes() {
@@ -132,6 +114,40 @@ export default function AppRoutes() {
         <ProtectedRoute>
             <ResumeAnalyzerPage />
         </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/placement/interview-prep"
+      element={
+       <ProtectedRoute>
+            <MockInterviewPage />
+        </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai/career-recommendations"
+      element={
+       <ProtectedRoute>
+            <CareerRecommendationsPage />
+       </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/placement/readiness"
+      element={
+       <ProtectedRoute>
+            <PlacementReadinessPage />
+       </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/settings"
+      element={
+       <ProtectedRoute>
+          <SettingsPage />
+       </ProtectedRoute>
         }
       />
 

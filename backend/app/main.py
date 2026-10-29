@@ -23,10 +23,14 @@ from app.api import (
     skills,
     study_recommendations,
     study_tasks,
+    placement_readiness,
+    career_recommendations,
     users,
+    mock_interview
 )
 from app.ai.errors import AIError
 from app.core.config import settings
+
 
 
 @asynccontextmanager
@@ -61,9 +65,11 @@ app.include_router(dashboard.router, prefix=settings.API_PREFIX)
 app.include_router(ai.router, prefix=settings.API_PREFIX)
 app.include_router(skill_gap.router, prefix=settings.API_PREFIX)
 app.include_router(resume_analyzer.router, prefix=settings.API_PREFIX)
+app.include_router(mock_interview.router,prefix=settings.API_PREFIX,)
 app.include_router(study_recommendations.router, prefix=settings.API_PREFIX)
+app.include_router(career_recommendations.router,prefix=settings.API_PREFIX)
 app.include_router(study_tasks.router, prefix=settings.API_PREFIX)
-
+app.include_router(placement_readiness.router,prefix=settings.API_PREFIX)
 
 @app.exception_handler(AIError)
 async def ai_error_handler(request: Request, exc: AIError) -> JSONResponse:
