@@ -11,18 +11,13 @@ import CareerGoalsPage from '../pages/CareerGoalsPage'
 import AIAssistantPage from '../pages/AIAssistantPage'
 import StudyPlannerPage from '../pages/StudyPlannerPage'
 import SkillGapPage from '../pages/SkillGapPage'
+import ResumeAnalyzerPage from '../pages/ResumeAnalyzerPage'
 import ComingSoonPage from '../pages/ComingSoonPage'
 import ProtectedRoute from '../components/auth/ProtectedRoute'
 
 /** Modules that exist in the navigation but aren't built yet. */
 const comingSoon: { path: string; title: string; description: string; plannedFor: string }[] = [
   
-  {
-    path: '/ai/resume-analyzer',
-    title: 'Resume Analyzer',
-    description: 'Analyze your resume and identify concrete improvements.',
-    plannedFor: 'a later phase',
-  },
   {
     path: '/ai/career-recommendations',
     title: 'Career Recommendations',
@@ -128,6 +123,14 @@ export default function AppRoutes() {
        element={
          <ProtectedRoute>
             <SkillGapPage />
+        </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/ai/resume-analyzer"
+       element={
+        <ProtectedRoute>
+            <ResumeAnalyzerPage />
         </ProtectedRoute>
         }
       />

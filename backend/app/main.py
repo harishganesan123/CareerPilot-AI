@@ -18,6 +18,7 @@ from app.api import (
     dashboard,
     health,
     projects,
+    resume_analyzer,
     skill_gap,
     skills,
     study_recommendations,
@@ -59,6 +60,7 @@ app.include_router(career_goals.router, prefix=settings.API_PREFIX)
 app.include_router(dashboard.router, prefix=settings.API_PREFIX)
 app.include_router(ai.router, prefix=settings.API_PREFIX)
 app.include_router(skill_gap.router, prefix=settings.API_PREFIX)
+app.include_router(resume_analyzer.router, prefix=settings.API_PREFIX)
 app.include_router(study_recommendations.router, prefix=settings.API_PREFIX)
 app.include_router(study_tasks.router, prefix=settings.API_PREFIX)
 
