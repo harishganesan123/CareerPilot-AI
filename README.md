@@ -189,12 +189,38 @@ npm run dev
 
 ```bash
 cd backend && python -m pytest        # AI provider is faked
-cd frontend && npm test               # needs Node 22.6+; tests history bounding + the Markdown parser
+cd frontend && npm test               # node tests (need Node 22.6+) then Vitest component tests (Node 20.19+/22.12+)
 cd frontend && npm run build && npm run lint
 ```
 
 Live inference is verified manually: log in, open `/ai/assistant`, ask a question and
 a follow-up. (`POST /api/ai/ping` is a quicker backend-only check.)
+
+## AI Study Recommendations (Phase 3A)
+
+The Study Planner can now generate recommendations with real model inference, next to
+the original rule-based suggestions. Both stay available and every result is labelled
+**AI-generated** or **Rule-based**.
+
+- **Endpoints:** `POST /api/study-recommendations/ai` with `{ "role_name": str }`
+  (authenticated, uses the shared AI rate limit). `GET /api/study-recommendations`
+  is unchanged except for an added `source: "rule_based"` field.
+- **Grounding:** the server looks up the student's own skills and recent tasks and sends
+  the model only: the role, its skill list, matched skills with self-reported level,
+  missing skills, and task subjects/statuses. No name, email, task titles or descriptions.
+- **Validation:** output must match a Pydantic schema (1–5 items, 15–240 minutes,
+  bounded text, fixed priority values). Any skill that is not one of the student's missing
+  skills is rejected (HTTP 502); prerequisites outside the role's skill list are dropped;
+  `order` is renumbered and `already_planned` is computed by the server.
+- **Read-only:** the endpoint never creates tasks or changes skills or the readiness score.
+  Tasks are still saved only when the student reviews and saves the pre-filled planner form.
+- **Failures:** a provider outage or timeout returns a safe error. The UI offers **Retry**
+  and an explicit **Show rule-based suggestions instead** button; it never substitutes
+  fallback output on its own.
+- **No database change:** no new tables and no migration.
+
+Tests: `cd backend && python -m pytest` (provider faked) and `cd frontend && npm test`.
+Live Gemini output quality for this feature is verified manually in the Study Planner.
 
 ## Project Structure
 

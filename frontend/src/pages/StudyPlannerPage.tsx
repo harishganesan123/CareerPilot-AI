@@ -10,7 +10,6 @@ import {
   Loader2,
   Plus,
   RefreshCw,
-  Sparkles,
   Target,
   Trash2,
 } from 'lucide-react'
@@ -29,13 +28,8 @@ import type {
 } from '../api/studyTasks'
 import { toApiError } from '../api/client'
 import { useToast } from '../context/ToastContext'
-import { fetchCareerRoles } from '../api/skillGap'
-import type { CareerRoleOption } from '../api/skillGap'
-import { fetchStudyRecommendations } from '../api/studyRecommendations'
-import type {
-  StudyRecommendation,
-  StudyRecommendationResult,
-} from '../api/studyRecommendations'
+import type { StudyRecommendation } from '../api/studyRecommendations'
+import StudyRecommendationsPanel from '../components/StudyRecommendationsPanel'
 
 type TaskFilter = 'All' | StudyTaskStatus
 
@@ -92,17 +86,6 @@ export default function StudyPlannerPage() {
   const [pageError, setPageError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
-  const [careerRoles, setCareerRoles] = useState<CareerRoleOption[]>([])
-  const [selectedRole, setSelectedRole] = useState('')
-  const [recommendationResult, setRecommendationResult] =
-    useState<StudyRecommendationResult | null>(null)
-  const [isLoadingRoles, setIsLoadingRoles] = useState(false)
-  const [isGeneratingRecommendations, setIsGeneratingRecommendations] =
-    useState(false)
-  const [recommendationError, setRecommendationError] = useState<string | null>(
-    null,
-  )
-
   async function loadTasks() {
     setIsLoading(true)
     setPageError(null)
@@ -118,42 +101,6 @@ export default function StudyPlannerPage() {
 
   useEffect(() => {
     void loadTasks()
-  }, [])
-
-  useEffect(() => {
-    let cancelled = false
-
-    async function loadRoles() {
-      setIsLoadingRoles(true)
-
-      try {
-        const roles = await fetchCareerRoles()
-
-        if (!cancelled) {
-          setCareerRoles(roles)
-          setSelectedRole((current) => {
-            if (current && roles.some((role) => role.role_name === current)) {
-              return current
-            }
-            return roles[0]?.role_name ?? ''
-          })
-        }
-      } catch (error) {
-        if (!cancelled) {
-          notifyError(toApiError(error).message)
-        }
-      } finally {
-        if (!cancelled) {
-          setIsLoadingRoles(false)
-        }
-      }
-    }
-
-    void loadRoles()
-
-    return () => {
-      cancelled = true
-    }
   }, [])
 
   const stats = useMemo(() => {
@@ -255,28 +202,6 @@ export default function StudyPlannerPage() {
       notifyError(toApiError(error).message)
     } finally {
       setDeletingId(null)
-    }
-  }
-
-  async function handleGenerateRecommendations() {
-    if (!selectedRole) {
-      setRecommendationError('Select a career role to generate recommendations.')
-      return
-    }
-
-    setIsGeneratingRecommendations(true)
-    setRecommendationError(null)
-
-    try {
-      const result = await fetchStudyRecommendations(selectedRole)
-      setRecommendationResult(result)
-      notifySuccess('Study recommendations generated.')
-    } catch (error) {
-      const message = toApiError(error).message
-      setRecommendationError(message)
-      notifyError(message)
-    } finally {
-      setIsGeneratingRecommendations(false)
     }
   }
 
@@ -465,182 +390,10 @@ export default function StudyPlannerPage() {
           </form>
         </section>
 
-        <section className="rounded-2xl border border-violet-200 bg-white p-5 shadow-sm sm:p-6">
-          <div className="flex items-start gap-3">
-            <div className="rounded-xl bg-violet-100 p-3 text-violet-700">
-              <Sparkles size={22} />
-            </div>
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-slate-900">
-                Personalized study recommendations
-              </h2>
-              <p className="mt-1 text-sm text-slate-500">
-                Select a career goal to identify missing skills and turn learning
-                suggestions into study tasks.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row">
-            <select
-              aria-label="Target career role"
-              value={selectedRole}
-              onChange={(event) => {
-                setSelectedRole(event.target.value)
-                setRecommendationResult(null)
-                setRecommendationError(null)
-              }}
-              disabled={isLoadingRoles || careerRoles.length === 0}
-              className="min-h-11 flex-1 rounded-lg border border-slate-300 bg-white px-3 text-sm outline-none focus:border-violet-500 focus:ring-2 focus:ring-violet-100 disabled:bg-slate-50"
-            >
-              {careerRoles.length === 0 && (
-                <option value="">
-                  {isLoadingRoles ? 'Loading career roles…' : 'No career roles available'}
-                </option>
-              )}
-              {careerRoles.map((role) => (
-                <option key={role.role_name} value={role.role_name}>
-                  {role.role_name}
-                </option>
-              ))}
-            </select>
-
-            <button
-              type="button"
-              onClick={() => void handleGenerateRecommendations()}
-              disabled={
-                isLoadingRoles ||
-                isGeneratingRecommendations ||
-                !selectedRole
-              }
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-violet-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-violet-800 disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {isGeneratingRecommendations ? (
-                <Loader2 size={17} className="animate-spin" />
-              ) : (
-                <Sparkles size={17} />
-              )}
-              {isGeneratingRecommendations
-                ? 'Generating…'
-                : 'Generate recommendations'}
-            </button>
-          </div>
-
-          {recommendationError && (
-            <div role="alert" className="mt-4 rounded-xl border border-red-200 bg-red-50 p-3 text-sm text-red-700">
-              {recommendationError}
-            </div>
-          )}
-
-          {recommendationResult && (
-            <div className="mt-5 space-y-4">
-              <div className="rounded-xl bg-violet-50 p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="font-semibold text-violet-950">
-                      {recommendationResult.role_name}
-                    </p>
-                    <p className="mt-1 text-sm text-violet-800">
-                      {recommendationResult.readiness_level} readiness
-                      {' · '}
-                      {recommendationResult.missing_count} missing skills
-                    </p>
-                  </div>
-                  <span className="text-2xl font-bold text-violet-800">
-                    {recommendationResult.readiness_score}%
-                  </span>
-                </div>
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-violet-200">
-                  <div
-                    className="h-full rounded-full bg-violet-700 transition-all"
-                    style={{
-                      width: `${Math.max(
-                        0,
-                        Math.min(100, recommendationResult.readiness_score),
-                      )}%`,
-                    }}
-                  />
-                </div>
-              </div>
-
-              {recommendationResult.recommendations.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-slate-300 p-6 text-center">
-                  <CheckCircle2 className="mx-auto text-emerald-600" size={30} />
-                  <p className="mt-2 font-semibold text-slate-800">
-                    No missing skills found for this role
-                  </p>
-                  <p className="mt-1 text-sm text-slate-500">
-                    Based on your recorded profile, no listed role requirements
-                    are missing. You can still create tasks to improve proficiency
-                    through projects and practice.
-                  </p>
-                </div>
-              ) : (
-                recommendationResult.recommendations.map((recommendation) => (
-                  <article
-                    key={recommendation.skill_name}
-                    className="rounded-xl border border-slate-200 p-4 transition hover:border-violet-200"
-                  >
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-semibold text-slate-900">
-                            {recommendation.skill_name}
-                          </h3>
-                          <span
-                            className={`rounded-full px-2 py-1 text-xs font-semibold ${
-                              recommendation.priority === 'High'
-                                ? 'bg-rose-50 text-rose-700'
-                                : recommendation.priority === 'Medium'
-                                  ? 'bg-blue-50 text-blue-700'
-                                  : 'bg-slate-100 text-slate-600'
-                            }`}
-                          >
-                            {recommendation.priority} priority
-                          </span>
-                        </div>
-
-                        <p className="mt-2 text-sm leading-5 text-slate-600">
-                          {recommendation.reason}
-                        </p>
-
-                        <div className="mt-3 rounded-lg bg-slate-50 p-3">
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            Suggested learning activity
-                          </p>
-                          <p className="mt-1 text-sm leading-5 text-slate-700">
-                            {recommendation.suggested_activity}
-                          </p>
-                        </div>
-
-                        <p className="mt-3 inline-flex items-center gap-1.5 text-xs text-slate-500">
-                          <Clock3 size={14} />
-                          Estimated time:{' '}
-                          {formatDuration(recommendation.estimated_minutes)}
-                        </p>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() =>
-                          handleCreateRecommendedTask(recommendation)
-                        }
-                        className="inline-flex shrink-0 items-center justify-center gap-2 rounded-lg border border-violet-200 px-3 py-2 text-sm font-semibold text-violet-700 transition hover:bg-violet-50"
-                      >
-                        <Plus size={16} />
-                        Create task
-                      </button>
-                    </div>
-                  </article>
-                ))
-              )}
-
-              <p className="text-xs leading-5 text-slate-500">
-                {recommendationResult.method_note}
-              </p>
-            </div>
-          )}
-        </section>
+        <StudyRecommendationsPanel
+          tasks={tasks}
+          onCreateTask={handleCreateRecommendedTask}
+        />
 
         <section className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

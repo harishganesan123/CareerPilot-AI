@@ -130,7 +130,7 @@ def test_gemini_requires_key():
 
 @pytest.mark.parametrize(
     "code,expected",
-    [(429, AIRateLimitError), (504, AITimeoutError), (500, AIProviderError), (403, AIProviderError)],
+    [(429, AIRateLimitError), (504, AITimeoutError), (503, AIProviderError), (500, AIProviderError), (403, AIProviderError)],
 )
 def test_gemini_api_errors_are_translated(gemini, monkeypatch, code, expected):
     from google.genai import errors

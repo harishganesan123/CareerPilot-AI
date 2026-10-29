@@ -4,10 +4,13 @@ connection, or real AI credits: auth is overridden and the AI provider is faked.
 """
 import pytest
 from fastapi.testclient import TestClient
+from sqlalchemy.pool import StaticPool
+from sqlmodel import Session, SQLModel, create_engine
 
 from app.ai.base import ChatMessage
 from app.ai.rate_limit import reset_rate_limits
 from app.ai.service import AIService, get_ai_service
+from app.core.database import get_session
 from app.core.deps import get_current_user
 from app.main import app
 from app.models.user import User
@@ -64,3 +67,78 @@ def use_provider():
         app.dependency_overrides[get_ai_service] = lambda: AIService(provider)
         return provider
     return _install
+
+
+# ---------------------------------------------------------------------------
+# Database-backed fixtures (in-memory SQLite; no network, no Postgres needed)
+# ---------------------------------------------------------------------------
+
+
+@pytest.fixture
+def db_engine():
+    engine = create_engine(
+        "sqlite://",
+        connect_args={"check_same_thread": False},
+        poolclass=StaticPool,
+    )
+    SQLModel.metadata.create_all(engine)
+    yield engine
+    engine.dispose()
+
+
+@pytest.fixture
+def db(db_engine):
+    """Route the app's `get_session` to the in-memory database."""
+    def _override():
+        # A fresh session per request, exactly like production.
+        with Session(db_engine) as session:
+            yield session
+
+    app.dependency_overrides[get_session] = _override
+    with Session(db_engine) as session:
+        yield session
+
+
+@pytest.fixture
+def make_user(db):
+    def _make(name: str, email: str) -> User:
+        user = User(name=name, email=email, password_hash="x")
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+        return user
+    return _make
+
+
+@pytest.fixture
+def login_as(client):
+    """Authenticate subsequent requests as the given persisted user."""
+    def _login(user: User) -> TestClient:
+        app.dependency_overrides[get_current_user] = lambda: user
+        return client
+    return _login
+
+
+@pytest.fixture
+def add_skill(db):
+    from app.models.skill import Proficiency, StudentSkill
+
+    def _add(user: User, name: str, level: Proficiency = Proficiency.INTERMEDIATE) -> StudentSkill:
+        skill = StudentSkill(user_id=user.id, skill_name=name, proficiency=level)
+        db.add(skill)
+        db.commit()
+        return skill
+    return _add
+
+
+@pytest.fixture
+def add_task(db):
+    from app.models.study_task import StudyTask, StudyTaskStatus
+
+    def _add(user: User, subject: str, status=StudyTaskStatus.PENDING, title: str | None = None) -> StudyTask:
+        task = StudyTask(user_id=user.id, title=title or f"Learn {subject}", subject=subject, status=status)
+        db.add(task)
+        db.commit()
+        db.refresh(task)
+        return task
+    return _add
