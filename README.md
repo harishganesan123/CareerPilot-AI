@@ -125,6 +125,103 @@ recommendations, study planner, interview generation, placement scoring) is
 deliberately out of scope for Phase 3 and will be built in later phases on top
 of this data foundation.
 
+## AI Foundation (backend)
+
+CareerPilot AI calls a hosted LLM (Google Gemini via the official `google-genai`
+SDK). **The application does not train its own model.**
+
+- `app/ai/service.py` — `AIService`: size limits, output caps, Pydantic validation
+  of structured output, metadata-only logging (prompts/resumes are never logged).
+- `app/ai/gemini_provider.py` — the only module that imports the SDK; converts
+  SDK failures into typed errors (`app/ai/errors.py`) mapped to safe HTTP responses.
+- `app/ai/rate_limit.py` — per-user sliding window (in-memory, per process).
+- `GET /api/ai/status` — is AI configured? (auth required; never returns the key)
+- `POST /api/ai/ping` — one real, minimal structured model call to verify setup.
+
+Provider choice is documented in the Phase 1 report; the provider sits behind the
+`AIProvider` interface so it can be swapped without touching feature code.
+
+Run the automated tests (the provider is mocked, so no API credits are used):
+
+```bash
+cd backend && pip install -r requirements-dev.txt && python -m pytest
+```
+
+`tests/test_phase3_api.py` is a separate live-server script
+(`python tests/test_phase3_api.py` with uvicorn running).
+
+## AI Learning Assistant (Phase 2)
+
+A chat page at `/ai/assistant` (sidebar: **AI Academic Assistant**, login required)
+where students ask about programming, AI/ML, data science and career preparation.
+Answers come from real Gemini inference through the backend; the browser never
+talks to the AI provider and never sees the key.
+
+- **Endpoint:** `POST /api/ai/chat` — body `{ "message": str (1–2000 chars), "conversation_history": [{ "role": "user" | "assistant", "content": str }] }`
+  (max 20 turns, 4000 chars per turn, 12000 chars in total). Returns `{ answer, model, source, latency_ms, note }`.
+- **Environment variables (names only):** `AI_PROVIDER`, `AI_API_KEY`, `AI_MODEL`,
+  `AI_TIMEOUT_SECONDS`, `AI_MAX_OUTPUT_TOKENS`, `AI_MAX_INPUT_CHARS`, `AI_RATE_LIMIT_PER_MINUTE`
+  (backend `.env` only; see `.env.example`).
+- **Stateless by design:** the client sends the recent history with each question;
+  nothing is stored, and the assistant only knows the turns in that request.
+- **General knowledge only:** answers are not grounded in uploaded materials yet
+  (the response's `source` is `general_knowledge`). Document-based answers arrive with RAG.
+- **Rendering:** a small built-in parser turns model output into React text nodes
+  (paragraphs, lists, code blocks, inline code/bold). No HTML from the model is ever rendered.
+
+**Limitations.** The server-side system prompt tells the model to treat the student's
+message and history as untrusted, but this does not make prompt injection impossible.
+The model has no tools and no database access, so the worst case is a misleading answer
+to that student, not an action on the system. History is client-supplied, so a user can
+forge earlier turns in their *own* conversation. The rate limit (shared with
+`/ai/ping`, counting invalid requests too) is in-memory and per server process.
+
+**Run it.**
+
+```bash
+# backend (from backend/, with a Gemini key set as AI_API_KEY in backend/.env)
+uvicorn app.main:app --reload --port 8000
+# frontend (from frontend/)
+npm run dev
+```
+
+**Test it.** Automated tests never call Gemini:
+
+```bash
+cd backend && python -m pytest        # AI provider is faked
+cd frontend && npm test               # node tests (need Node 22.6+) then Vitest component tests (Node 20.19+/22.12+)
+cd frontend && npm run build && npm run lint
+```
+
+Live inference is verified manually: log in, open `/ai/assistant`, ask a question and
+a follow-up. (`POST /api/ai/ping` is a quicker backend-only check.)
+
+## AI Study Recommendations (Phase 3A)
+
+The Study Planner can now generate recommendations with real model inference, next to
+the original rule-based suggestions. Both stay available and every result is labelled
+**AI-generated** or **Rule-based**.
+
+- **Endpoints:** `POST /api/study-recommendations/ai` with `{ "role_name": str }`
+  (authenticated, uses the shared AI rate limit). `GET /api/study-recommendations`
+  is unchanged except for an added `source: "rule_based"` field.
+- **Grounding:** the server looks up the student's own skills and recent tasks and sends
+  the model only: the role, its skill list, matched skills with self-reported level,
+  missing skills, and task subjects/statuses. No name, email, task titles or descriptions.
+- **Validation:** output must match a Pydantic schema (1–5 items, 15–240 minutes,
+  bounded text, fixed priority values). Any skill that is not one of the student's missing
+  skills is rejected (HTTP 502); prerequisites outside the role's skill list are dropped;
+  `order` is renumbered and `already_planned` is computed by the server.
+- **Read-only:** the endpoint never creates tasks or changes skills or the readiness score.
+  Tasks are still saved only when the student reviews and saves the pre-filled planner form.
+- **Failures:** a provider outage or timeout returns a safe error. The UI offers **Retry**
+  and an explicit **Show rule-based suggestions instead** button; it never substitutes
+  fallback output on its own.
+- **No database change:** no new tables and no migration.
+
+Tests: `cd backend && python -m pytest` (provider faked) and `cd frontend && npm test`.
+Live Gemini output quality for this feature is verified manually in the Study Planner.
+
 ## Project Structure
 
 ```
@@ -170,7 +267,7 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 cp .env.example .env
-# Edit .env and set DATABASE_URL, JWT_SECRET, AI_API_KEY, AI_MODEL
+# Edit .env and set DATABASE_URL, JWT_SECRET, AI_API_KEY (Gemini key), AI_MODEL
 
 # Apply database migrations (creates/updates the users table)
 alembic upgrade head

@@ -11,16 +11,26 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.api import (
+    ai,
     auth,
     career_goals,
     certifications,
     dashboard,
     health,
     projects,
+    resume_analyzer,
+    skill_gap,
     skills,
+    study_recommendations,
+    study_tasks,
+    placement_readiness,
+    career_recommendations,
     users,
+    mock_interview
 )
+from app.ai.errors import AIError
 from app.core.config import settings
+
 
 
 @asynccontextmanager
@@ -35,10 +45,15 @@ app = FastAPI(
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
+origins = [
+    "https://career-pilot-eia3jqyja-harish7.vercel.app",
+    "https://career-pilot-ai-git-feature-ai-foundation-integration-harish7.vercel.app",
+    "https://career-pilot-giq7rabfg-harish7.vercel.app",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,6 +67,19 @@ app.include_router(projects.router, prefix=settings.API_PREFIX)
 app.include_router(certifications.router, prefix=settings.API_PREFIX)
 app.include_router(career_goals.router, prefix=settings.API_PREFIX)
 app.include_router(dashboard.router, prefix=settings.API_PREFIX)
+app.include_router(ai.router, prefix=settings.API_PREFIX)
+app.include_router(skill_gap.router, prefix=settings.API_PREFIX)
+app.include_router(resume_analyzer.router, prefix=settings.API_PREFIX)
+app.include_router(mock_interview.router,prefix=settings.API_PREFIX,)
+app.include_router(study_recommendations.router, prefix=settings.API_PREFIX)
+app.include_router(career_recommendations.router,prefix=settings.API_PREFIX)
+app.include_router(study_tasks.router, prefix=settings.API_PREFIX)
+app.include_router(placement_readiness.router,prefix=settings.API_PREFIX)
+
+@app.exception_handler(AIError)
+async def ai_error_handler(request: Request, exc: AIError) -> JSONResponse:
+    """Map AI-layer failures to safe responses (no prompts, payloads or keys)."""
+    return JSONResponse(status_code=exc.status_code, content={"detail": exc.public_message})
 
 
 @app.exception_handler(Exception)

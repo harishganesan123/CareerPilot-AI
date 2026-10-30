@@ -1,3 +1,4 @@
+
 import { useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import type { ReactNode } from 'react'
@@ -6,7 +7,6 @@ import {
   BrainCircuit,
   Briefcase,
   CalendarClock,
-  Compass,
   FileSearch,
   FolderGit2,
   LayoutDashboard,
@@ -101,44 +101,56 @@ export default function DashboardLayout({
   }
 
   const sidebar = (
-    <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between px-5 py-5">
-        <Link to="/dashboard" className="flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--color-brand-500)] text-white">
-            <Compass size={16} />
-          </span>
-          <span className="font-semibold text-slate-900">CareerPilot AI</span>
+    <div className="flex h-full flex-col bg-white">
+      <div className="flex items-center justify-between border-b border-[#E6EEF2] px-4 py-4">
+        <Link
+          to="/dashboard"
+          className="flex min-w-0 items-center"
+          onClick={() => setSidebarOpen(false)}
+          aria-label="CareerPilot AI dashboard"
+        >
+          <img
+            src="/images/careerpilot-logo.png"
+            alt="CareerPilot AI"
+            className="h-10 w-auto max-w-[190px] object-contain object-left"
+          />
         </Link>
+
         <button
-          className="text-slate-500 md:hidden"
+          className="rounded-lg p-2 text-[#5B6F81] transition hover:bg-[#F0F7FA] md:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-label="Close navigation"
         >
-          <X size={18} />
+          <X size={19} />
         </button>
       </div>
 
-      <nav className="flex-1 space-y-6 overflow-y-auto px-3 pb-4">
+      <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
         {navSections.map((section) => (
           <div key={section.title}>
-            <p className="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <p className="px-3 pb-2 text-[10px] font-bold uppercase tracking-[0.16em] text-[#8294A3]">
               {section.title}
             </p>
-            <div className="space-y-0.5">
+
+            <div className="space-y-1">
               {section.items.map((item) => (
                 <NavLink
                   key={item.to}
                   to={item.to}
                   onClick={() => setSidebarOpen(false)}
                   className={({ isActive }) =>
-                    `flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition ${
+                    `group flex items-center gap-3 rounded-xl border px-3 py-2.5 text-[13px] font-medium transition-all duration-200 ${
                       isActive
-                        ? 'bg-[var(--color-brand-50)] text-[var(--color-brand-700)]'
-                        : 'text-slate-600 hover:bg-slate-100'
+                        ? 'border-[#D6EAF0] bg-[#F0F7FA] text-[#1D3F5A] shadow-sm'
+                        : 'border-transparent text-[#5B6F81] hover:bg-[#F8FBFC] hover:text-[#1D3F5A]'
                     }`
                   }
                 >
-                  <item.icon size={17} className="shrink-0" />
+                  <item.icon
+                    size={17}
+                    strokeWidth={1.8}
+                    className="shrink-0"
+                  />
                   <span className="truncate">{item.label}</span>
                 </NavLink>
               ))}
@@ -147,10 +159,10 @@ export default function DashboardLayout({
         ))}
       </nav>
 
-      <div className="border-t border-slate-200 p-3">
+      <div className="border-t border-[#E6EEF2] p-3">
         <button
           onClick={handleLogout}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100"
+          className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-[#5B6F81] transition hover:bg-red-50 hover:text-red-600"
         >
           <LogOut size={17} />
           Logout
@@ -160,20 +172,22 @@ export default function DashboardLayout({
   )
 
   return (
-    <div className="flex min-h-screen bg-slate-50">
+    <div className="flex min-h-screen bg-[#F8FBFC]">
       {/* Desktop sidebar */}
-      <aside className="hidden w-64 shrink-0 border-r border-slate-200 bg-white md:block">
+      <aside className="hidden w-64 shrink-0 border-r border-[#E2ECF1] bg-white md:block">
         <div className="sticky top-0 h-screen">{sidebar}</div>
       </aside>
 
       {/* Mobile sidebar drawer */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
-          <div
-            className="absolute inset-0 bg-slate-900/40"
+          <button
+            type="button"
+            aria-label="Close navigation overlay"
+            className="absolute inset-0 h-full w-full bg-[#0F1F2E]/40 backdrop-blur-[2px]"
             onClick={() => setSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 h-full w-64 border-r border-slate-200 bg-white">
+          <aside className="absolute bottom-0 left-0 top-0 w-[280px] border-r border-[#E2ECF1] bg-white shadow-2xl">
             {sidebar}
           </aside>
         </div>
@@ -181,69 +195,83 @@ export default function DashboardLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center gap-4 border-b border-slate-200 bg-white px-4 py-3 md:px-6">
+        <header className="sticky top-0 z-30 flex min-h-[68px] items-center gap-3 border-b border-[#E2ECF1] bg-white/95 px-4 backdrop-blur-md sm:px-6">
           <button
-            className="text-slate-600 md:hidden"
+            className="rounded-lg p-2 text-[#1D3F5A] transition hover:bg-[#F0F7FA] md:hidden"
             onClick={() => setSidebarOpen(true)}
             aria-label="Open navigation"
           >
-            <Menu size={20} />
+            <Menu size={21} />
           </button>
 
-          <h1 className="truncate text-base font-semibold text-slate-900 md:text-lg">
-            {title}
-          </h1>
+          <div className="min-w-0">
+            <p className="hidden text-[10px] font-semibold uppercase tracking-[0.15em] text-[#8294A3] sm:block">
+              CareerPilot AI
+            </p>
+            <h1 className="truncate text-base font-bold tracking-tight text-[#1D3F5A] md:text-lg">
+              {title}
+            </h1>
+          </div>
 
-          <div className="relative ml-auto hidden max-w-xs flex-1 lg:block">
+          <div className="relative ml-auto hidden max-w-sm flex-1 lg:block">
             <Search
-              size={15}
-              className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              size={16}
+              className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8294A3]"
             />
             <input
               type="search"
               placeholder="Search your profile…"
-              className="w-full rounded-md border border-slate-200 bg-slate-50 py-1.5 pl-9 pr-3 text-sm outline-none focus:border-[var(--color-brand-500)] focus:bg-white"
+              aria-label="Search your profile"
+              className="w-full rounded-xl border border-[#E2ECF1] bg-[#F8FBFC] py-2 pl-9 pr-3 text-sm text-[#0F1F2E] outline-none transition placeholder:text-[#8294A3] focus:border-[#437B98] focus:bg-white focus:ring-2 focus:ring-[#D6EAF0]"
             />
           </div>
 
-          <div className="relative ml-auto lg:ml-0">
+          <div className="relative ml-auto lg:ml-2">
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
-              className="flex items-center gap-2 rounded-md px-1.5 py-1 transition hover:bg-slate-100"
+              aria-expanded={menuOpen}
+              aria-label="Open account menu"
+              className="flex items-center gap-2 rounded-xl p-1.5 transition hover:bg-[#F0F7FA]"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--color-brand-500)] text-xs font-semibold text-white">
+              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#1D3F5A] text-xs font-bold text-white ring-2 ring-[#D6EAF0]">
                 {user ? initialsOf(user.name) : '?'}
               </span>
-              <span className="hidden max-w-[10rem] truncate text-sm font-medium text-slate-700 sm:block">
+              <span className="hidden max-w-[10rem] truncate text-sm font-semibold text-[#1D3F5A] sm:block">
                 {user?.name}
               </span>
             </button>
 
             {menuOpen && (
               <>
-                <div className="fixed inset-0 z-10" onClick={() => setMenuOpen(false)} />
-                <div className="absolute right-0 z-20 mt-2 w-48 rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                <button
+                  type="button"
+                  aria-label="Close account menu"
+                  className="fixed inset-0 z-10 cursor-default"
+                  onClick={() => setMenuOpen(false)}
+                />
+                <div className="absolute right-0 z-20 mt-2 w-52 overflow-hidden rounded-2xl border border-[#E2ECF1] bg-white py-1.5 shadow-xl shadow-[#1D3F5A]/10">
                   <Link
                     to="/profile"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#43576A] transition hover:bg-[#F0F7FA] hover:text-[#1D3F5A]"
                   >
-                    <UserRound size={15} />
+                    <UserRound size={16} />
                     My Profile
                   </Link>
                   <Link
                     to="/settings"
                     onClick={() => setMenuOpen(false)}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-[#43576A] transition hover:bg-[#F0F7FA] hover:text-[#1D3F5A]"
                   >
-                    <Settings size={15} />
+                    <Settings size={16} />
                     Settings
                   </Link>
+                  <div className="my-1 border-t border-[#E6EEF2]" />
                   <button
                     onClick={handleLogout}
-                    className="flex w-full items-center gap-2 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+                    className="flex w-full items-center gap-2.5 px-4 py-2.5 text-sm text-[#43576A] transition hover:bg-red-50 hover:text-red-600"
                   >
-                    <LogOut size={15} />
+                    <LogOut size={16} />
                     Logout
                   </button>
                 </div>
@@ -252,7 +280,10 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main key={location.pathname} className="min-w-0 flex-1 p-4 md:p-6">
+        <main
+          key={location.pathname}
+          className="min-w-0 flex-1 p-4 sm:p-5 md:p-7 lg:p-8"
+        >
           {children}
         </main>
       </div>

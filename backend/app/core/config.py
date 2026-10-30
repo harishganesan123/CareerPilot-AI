@@ -28,9 +28,14 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 24 hours
 
     # --- AI provider (configurable, never hard-coded) ---
+    # The key is read from the backend environment only. Never prefix it with VITE_.
+    AI_PROVIDER: str = "gemini"
     AI_API_KEY: str = ""
-    AI_MODEL: str = "claude-sonnet-4-6"
-    AI_PROVIDER: str = "anthropic"
+    AI_MODEL: str = "gemini-3.1-flash-lite"
+    AI_TIMEOUT_SECONDS: float = 30.0
+    AI_MAX_OUTPUT_TOKENS: int = 2048
+    AI_MAX_INPUT_CHARS: int = 30000
+    AI_RATE_LIMIT_PER_MINUTE: int = 10
 
     # --- CORS ---
     CORS_ORIGINS: List[str] = [
