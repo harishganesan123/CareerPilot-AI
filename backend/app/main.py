@@ -48,6 +48,7 @@ app = FastAPI(
 origins = [
     "https://career-pilot-eia3jqyja-harish7.vercel.app",
     "https://career-pilot-ai-git-feature-ai-foundation-integration-harish7.vercel.app",
+    "https://career-pilot-giq7rabfg-harish7.vercel.app",
 ]
 
 app.add_middleware(
