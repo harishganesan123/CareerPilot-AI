@@ -1,7 +1,16 @@
+
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Compass, Loader2 } from 'lucide-react'
+import {
+  ArrowRight,
+  BrainCircuit,
+  GraduationCap,
+  Target,
+  BriefcaseBusiness,
+  Loader2,
+  ShieldCheck,
+} from 'lucide-react'
 import FormField from '../components/FormField'
 import PasswordField from '../components/PasswordField'
 import { useAuth } from '../context/AuthContext'
@@ -34,8 +43,13 @@ export default function RegisterPage() {
   function validate(): boolean {
     const errors: FieldErrors = {}
 
-    if (name.trim().length < 2) errors.name = 'Name must be at least 2 characters.'
-    if (!/^\S+@\S+\.\S+$/.test(email)) errors.email = 'Enter a valid email address.'
+    if (name.trim().length < 2) {
+      errors.name = 'Name must be at least 2 characters.'
+    }
+
+    if (!/^\S+@\S+\.\S+$/.test(email)) {
+      errors.email = 'Enter a valid email address.'
+    }
 
     if (password.length < 8) {
       errors.password = 'Password must be at least 8 characters.'
@@ -58,9 +72,11 @@ export default function RegisterPage() {
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setServerError(null)
+
     if (!validate()) return
 
     setIsSubmitting(true)
+
     try {
       await register({
         name: name.trim(),
@@ -70,6 +86,7 @@ export default function RegisterPage() {
         university: university.trim() || undefined,
         semester: semester ? Number(semester) : undefined,
       })
+
       navigate('/dashboard', { replace: true })
     } catch (error) {
       setServerError((error as ApiError).message)
@@ -79,111 +96,240 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-50 px-6 py-12">
-      <div className="w-full max-w-md rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
-        <div className="flex flex-col items-center text-center">
-          <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[var(--color-brand-500)] text-white">
-            <Compass size={18} />
-          </span>
-          <h1 className="mt-4 text-xl font-semibold text-slate-900">Create your account</h1>
-          <p className="mt-1 text-sm text-slate-500">Start your CareerPilot AI journey</p>
+    <main className="min-h-screen bg-[#F8F2F1] lg:grid lg:grid-cols-2">
+
+      {/* LEFT BRAND PANEL */}
+      <section className="relative hidden min-h-screen overflow-hidden bg-[#1D3F5A] px-12 py-10 text-white lg:flex lg:flex-col lg:justify-between xl:px-20">
+
+        <div className="absolute -right-40 -top-40 h-[500px] w-[500px] rounded-full border border-white/10" />
+        <div className="absolute -right-20 -top-20 h-[350px] w-[350px] rounded-full border border-white/10" />
+        <div className="absolute -bottom-48 -left-32 h-[500px] w-[500px] rounded-full bg-[#437B98]/20 blur-3xl" />
+
+        <div className="relative z-10">
+          <img
+            src="/careerpilot-logo.png"
+            alt="CareerPilot AI"
+            className="h-auto w-72 rounded-md object-contain"
+          />
         </div>
 
-        <form className="mt-6 space-y-4" onSubmit={handleSubmit} noValidate>
-          {serverError && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-              {serverError}
+        <div className="relative z-10 max-w-xl py-12">
+
+          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#96CAD3]/30 bg-white/10 px-4 py-2 text-sm text-[#D6EAF0]">
+            <BrainCircuit size={17} />
+            Start your career journey
+          </div>
+
+          <h1 className="text-4xl font-bold leading-tight xl:text-5xl">
+            Build your future.
+            <span className="block text-[#96CAD3]">
+              One skill at a time.
+            </span>
+          </h1>
+
+          <p className="mt-6 max-w-lg text-base leading-8 text-slate-200">
+            Create your student profile and let CareerPilot AI help you
+            discover opportunities, develop skills and move closer to
+            your career goals.
+          </p>
+
+          <div className="mt-10 space-y-5">
+
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-white/10 p-3 text-[#96CAD3]">
+                <Target size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Discover your potential</h3>
+                <p className="text-sm text-slate-300">
+                  Identify strengths and areas to improve.
+                </p>
+              </div>
             </div>
-          )}
 
-          <FormField
-            id="name"
-            label="Full name"
-            type="text"
-            placeholder="Jane Doe"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            error={fieldErrors.name}
-            autoComplete="name"
-          />
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-white/10 p-3 text-[#96CAD3]">
+                <GraduationCap size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Create your learning path</h3>
+                <p className="text-sm text-slate-300">
+                  Get guidance based on your academic profile.
+                </p>
+              </div>
+            </div>
 
-          <FormField
-            id="email"
-            label="Email"
-            type="email"
-            placeholder="you@university.edu"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            error={fieldErrors.email}
-            autoComplete="email"
-          />
+            <div className="flex items-center gap-4">
+              <div className="rounded-xl bg-white/10 p-3 text-[#96CAD3]">
+                <BriefcaseBusiness size={22} />
+              </div>
+              <div>
+                <h3 className="font-semibold">Prepare for opportunities</h3>
+                <p className="text-sm text-slate-300">
+                  Work towards your dream career.
+                </p>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormField
-              id="programme"
-              label="Programme"
-              type="text"
-              placeholder="B.Tech AI"
-              value={programme}
-              onChange={(e) => setProgramme(e.target.value)}
-            />
-            <FormField
-              id="semester"
-              label="Semester"
-              type="number"
-              min={1}
-              max={12}
-              placeholder="7"
-              value={semester}
-              onChange={(e) => setSemester(e.target.value)}
-              error={fieldErrors.semester}
+          </div>
+        </div>
+
+        <div className="relative z-10 flex items-center justify-between border-t border-white/15 pt-6 text-sm text-slate-300">
+          <span>PLAN · PREPARE · PROGRESS</span>
+          <span>CareerPilot AI © 2026</span>
+        </div>
+      </section>
+
+      {/* RIGHT REGISTRATION PANEL */}
+      <section className="flex min-h-screen items-center justify-center px-5 py-10 sm:px-10 lg:py-12">
+
+        <div className="w-full max-w-lg">
+
+          {/* Mobile logo */}
+          <div className="mb-8 flex justify-center lg:hidden">
+            <img
+              src="/careerpilot-logo.png"
+              alt="CareerPilot AI"
+              className="w-64 object-contain"
             />
           </div>
 
-          <FormField
-            id="university"
-            label="University"
-            type="text"
-            placeholder="Your university"
-            value={university}
-            onChange={(e) => setUniversity(e.target.value)}
-          />
+          <div className="rounded-3xl border border-[#D6EAF0] bg-white p-7 shadow-[0_15px_50px_rgba(29,63,90,0.08)] sm:p-9">
 
-          <PasswordField
-            id="password"
-            label="Password"
-            value={password}
-            onChange={setPassword}
-            error={fieldErrors.password}
-            autoComplete="new-password"
-          />
+            <div className="mb-7">
+              <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EAF4F6] text-[#437B98]">
+                <GraduationCap size={25} />
+              </div>
 
-          <PasswordField
-            id="confirmPassword"
-            label="Confirm password"
-            value={confirmPassword}
-            onChange={setConfirmPassword}
-            error={fieldErrors.confirmPassword}
-            autoComplete="new-password"
-          />
+              <h2 className="text-3xl font-bold tracking-tight text-[#0F1F2E]">
+                Create your account
+              </h2>
 
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex w-full items-center justify-center gap-2 rounded-md bg-[var(--color-brand-500)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--color-brand-600)] disabled:cursor-not-allowed disabled:opacity-70"
-          >
-            {isSubmitting && <Loader2 size={16} className="animate-spin" />}
-            {isSubmitting ? 'Creating account…' : 'Create account'}
-          </button>
-        </form>
+              <p className="mt-2 text-sm leading-6 text-[#6B7C93]">
+                Join CareerPilot AI and start planning your future.
+              </p>
+            </div>
 
-        <p className="mt-6 text-center text-sm text-slate-500">
-          Already have an account?{' '}
-          <Link to="/login" className="font-medium text-[var(--color-brand-600)]">
-            Log in
-          </Link>
-        </p>
-      </div>
-    </div>
+            <form onSubmit={handleSubmit} noValidate className="space-y-4">
+
+              {serverError && (
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {serverError}
+                </div>
+              )}
+
+              <FormField
+                id="name"
+                label="Full name"
+                type="text"
+                placeholder="Enter your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                error={fieldErrors.name}
+                autoComplete="name"
+              />
+
+              <FormField
+                id="email"
+                label="Email address"
+                type="email"
+                placeholder="you@university.edu"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                error={fieldErrors.email}
+                autoComplete="email"
+              />
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  id="programme"
+                  label="Programme"
+                  type="text"
+                  placeholder="B.Tech AI"
+                  value={programme}
+                  onChange={(e) => setProgramme(e.target.value)}
+                />
+
+                <FormField
+                  id="semester"
+                  label="Semester"
+                  type="number"
+                  min={1}
+                  max={12}
+                  placeholder="e.g. 7"
+                  value={semester}
+                  onChange={(e) => setSemester(e.target.value)}
+                  error={fieldErrors.semester}
+                />
+              </div>
+
+              <FormField
+                id="university"
+                label="University"
+                type="text"
+                placeholder="Enter your university"
+                value={university}
+                onChange={(e) => setUniversity(e.target.value)}
+              />
+
+              <PasswordField
+                id="password"
+                label="Password"
+                value={password}
+                onChange={setPassword}
+                error={fieldErrors.password}
+                autoComplete="new-password"
+              />
+
+              <PasswordField
+                id="confirmPassword"
+                label="Confirm password"
+                value={confirmPassword}
+                onChange={setConfirmPassword}
+                error={fieldErrors.confirmPassword}
+                autoComplete="new-password"
+              />
+
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-[#1D3F5A] px-5 py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#1D3F5A]/15 transition hover:bg-[#437B98] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 size={18} className="animate-spin" />
+                    Creating account...
+                  </>
+                ) : (
+                  <>
+                    Create your account
+                    <ArrowRight size={18} />
+                  </>
+                )}
+              </button>
+            </form>
+
+            <div className="mt-7 text-center text-sm text-[#6B7C93]">
+              Already have an account?{' '}
+              <Link
+                to="/login"
+                className="font-semibold text-[#437B98] hover:text-[#1D3F5A]"
+              >
+                Sign in
+              </Link>
+            </div>
+
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-[#6B7C93]">
+              <ShieldCheck size={15} className="text-[#437B98]" />
+              Your information is used to personalize your experience.
+            </div>
+          </div>
+
+          <p className="mt-6 text-center text-xs text-[#6B7C93]">
+            © 2026 CareerPilot AI. Plan · Prepare · Progress.
+          </p>
+        </div>
+      </section>
+    </main>
   )
 }
