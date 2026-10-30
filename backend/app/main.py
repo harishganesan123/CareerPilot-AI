@@ -45,10 +45,14 @@ app = FastAPI(
     version=settings.APP_VERSION,
     lifespan=lifespan,
 )
+origins = [
+    "https://career-pilot-eia3jqyja-harish7.vercel.app",
+    "https://career-pilot-ai-git-feature-ai-foundation-integration-harish7.vercel.app",
+]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
