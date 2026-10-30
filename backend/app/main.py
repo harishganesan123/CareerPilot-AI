@@ -46,9 +46,16 @@ app = FastAPI(
     lifespan=lifespan,
 )
 origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+
+    # Vercel Preview domains
     "https://career-pilot-eia3jqyja-harish7.vercel.app",
     "https://career-pilot-ai-git-feature-ai-foundation-integration-harish7.vercel.app",
     "https://career-pilot-giq7rabfg-harish7.vercel.app",
+
+    # Vercel Production domain
+    "https://career-pilot-ai-harish7.vercel.app",
 ]
 
 app.add_middleware(
