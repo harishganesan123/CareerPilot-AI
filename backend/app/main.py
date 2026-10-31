@@ -53,7 +53,7 @@ origins = [
     "https://career-pilot-eia3jqyja-harish7.vercel.app",
     "https://career-pilot-ai-git-feature-ai-foundation-integration-harish7.vercel.app",
     "https://career-pilot-giq7rabfg-harish7.vercel.app",
-    "https://career-pilot-ai-navy-seven.vercel.app"
+    "https://career-pilot-ai-navy-seven.vercel.app",
 
     # Vercel Production domain
     "https://career-pilot-ai-harish7.vercel.app",
